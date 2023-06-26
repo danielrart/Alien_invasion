@@ -7,6 +7,7 @@ from game_stats import GameStats
 from ship import Ship
 from bullet import Bullet
 from alien import Alien
+from button import Button
 
 
 class AlienInvasion():
@@ -25,6 +26,7 @@ class AlienInvasion():
         self.bullets = pygame.sprite.Group()
         self.aliens = pygame.sprite.Group()
         self._create_fleet()
+        self.play_button = Button(self, "Play")
 
     def run_game(self):
         while True:
@@ -41,6 +43,9 @@ class AlienInvasion():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                 mouse_pos = pygame.mouse.get_pos()
+                 self._check_play_button(mouse_pos)
             elif event.type == pygame.KEYDOWN:
                 self._check_keydown_events(event)
             elif event.type == pygame.KEYUP:
@@ -48,7 +53,7 @@ class AlienInvasion():
 
     def _ship_hit(self):
         '''Обрабатывает столкновение корабля с пришельцем.'''
-        if stats.ships_left > 0:
+        if self.stats.ships_left > 0:
             # Уменьшение ships_left.
             self.stats.ships_left -= 1
 
@@ -90,6 +95,7 @@ class AlienInvasion():
         # Создание пришельца и вычисление количества пришельцев в ряду
         # Интервал между соседними пришельцами равен ширине пришельца.
         alien = Alien(self)
+        self.aliens.add(alien)
         alien_width, alien_height = alien.rect.size
         available_space_x = self.settings.screen_width - (2 * alien_width)
         number_aliens_x = available_space_x //  (2 * alien_width)
@@ -150,6 +156,17 @@ class AlienInvasion():
                 self._ship_hit()
                 break
 
+    def _check_play_button(self, mouse_pos):
+        button_clicked = self.play_button.rect.collidepoint(mouse_pos)
+        if button_clicked and not self.stats.game_active:
+            if self.play_button.rect.collidepoint(mouse_pos):
+               self.stats.reset_stats()
+               self.stats.game_active = True
+               self.aliens.empty()
+               self.bullets.empty()
+               self._create_fleet
+               self.ship.center_ship()
+
 
     def center_ship(self):
         """Размещает корабль в центре нижней стороны."""
@@ -187,6 +204,9 @@ class AlienInvasion():
         for bullet in self.bullets.sprites():
             bullet.draw_bullet()
         self.aliens.draw(self.screen)
+
+        if not self.stats.game_active:
+            self.play_button.draw_button()
 
 
 

@@ -27,11 +27,14 @@ class Ship():
             self.x += self.setting.ship_speed
         if self.moving_left and self.rect.left > 0:
             self.x -= self.setting.ship_speed
-
             self.rect.x -= 1
-            self.rect.x = self.x
 
 
     def blitime(self):
 
         self.screen.blit(self.image, self.rect)
+
+    def center_ship(self):
+        """Размещает корабль в центре нижней стороны."""
+        self.rect.midbottom = self.screen_rect.midbottom
+        self.x = float(self.rect.x)
